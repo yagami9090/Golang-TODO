@@ -2,6 +2,7 @@ package todo
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -18,6 +19,46 @@ type Task struct {
 
 type NewTaskTodo struct {
 	Task string `json:"task"`
+}
+
+type Serializer interface {
+	Decode(io.Reader, interface{}) error
+	Encode(io.Writer, interface{}) error
+}
+
+type JSONSerializer struct{}
+
+func (j JSONSerializer) Decode(r io.Reader, v interface{}) error {
+	return json.NewDecoder(r).Decode(v)
+}
+func (j JSONSerializer) Encode(w io.Writer, v interface{}) error {
+	return json.NewEncoder(w).Encode(v)
+}
+
+func NewJSONSerializer() JSONSerializer {
+	return JSONSerializer{}
+}
+
+type App struct {
+	serialize Serializer
+}
+
+func NewApp(serialize Serializer) *App {
+	return &App{
+		serialize: serialize,
+	}
+}
+
+func (app *App) AddTask(rw http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var task NewTaskTodo
+	if err := app.serialize.Decode(r.Body, &task); err != nil {
+		// if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	New(task.Task)
 }
 
 func AddTask(rw http.ResponseWriter, r *http.Request) {
