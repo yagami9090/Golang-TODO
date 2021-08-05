@@ -1,0 +1,17 @@
+GET  http://localhost:9090/auth
+Content-Type: application/json
+
+PUT  http://localhost:9090/todos
+Content-Type: application/json
+
+{
+    "task":"todo task2"
+}
+
+GET  http://localhost:9090/todos
+Content-Type: application/json
+
+PUT  http://localhost:9090/todos/0
+Content-Type: application/json
+
+
