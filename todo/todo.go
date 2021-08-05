@@ -1,11 +1,11 @@
 package todo
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 var index int
@@ -20,35 +20,30 @@ type NewTaskTodo struct {
 	Task string `json:"task"`
 }
 
-func AddTask(rw http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
+func AddTask(c *gin.Context) {
+	fmt.Println("start add task")
 	var task NewTaskTodo
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
+	if err := c.Bind(&task); err != nil {
+		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
 
 	New(task.Task)
 }
 
-func MarkDone(rw http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	index := vars["index"]
-	i, err := strconv.Atoi(index)
+func MarkDone(c *gin.Context) {
+	id := c.Param("id")
+	i, err := strconv.Atoi(id)
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
 
 	tasks[i].Done = true
-
 }
 
-func ListTask(rw http.ResponseWriter, r *http.Request) {
-	if err := json.NewEncoder(rw).Encode(List()); err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+func ListTask(c *gin.Context) {
+	c.JSON(http.StatusOK, List())
 }
 
 func List() map[int]*Task {

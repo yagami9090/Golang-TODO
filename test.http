@@ -5,11 +5,12 @@ PUT  http://localhost:9090/todos
 Content-Type: application/json
 
 {
-    "task":"todo task2"
+    "task":"todo task3"
 }
 
 GET  http://localhost:9090/todos
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjgxNDcxNDEsImlzcyI6InRlc3QifQ.g4RMkq3onDxlkvOUScibyLeU_Q3g6mtnpzawJn_1ccI
 
 PUT  http://localhost:9090/todos/0
 Content-Type: application/json
