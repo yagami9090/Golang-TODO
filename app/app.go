@@ -6,33 +6,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Ctx struct {
+	*gin.Context
+}
+
+func (c *Ctx) InternalServerError(err error) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"error": err.Error(),
+	})
+}
+
+func (c *Ctx) OK() {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
+
 type App struct {
 	*gin.Engine
 }
 
-func New(e *gin.Engine) *App {
-	return &App{Engine: e}
+func New() *App {
+	return &App{Engine: gin.Default()}
 }
+
+type HandlerFunc func(*Ctx)
 
 func (app *App) PUT(relativePath string, handler HandlerFunc) {
 	app.Engine.PUT(relativePath, func(c *gin.Context) {
-		handler(&Context{Context: c})
+		handler(&Ctx{Context: c})
 	})
 }
 func (app *App) GET(relativePath string, handler HandlerFunc) {
 	app.Engine.GET(relativePath, func(c *gin.Context) {
-		handler(&Context{Context: c})
-	})
-}
-
-type HandlerFunc func(*Context)
-
-type Context struct {
-	*gin.Context
-}
-
-func (c *Context) InternalError(err error) {
-	c.Context.JSON(http.StatusInternalServerError, gin.H{
-		"error": err.Error(),
+		handler(&Ctx{Context: c})
 	})
 }

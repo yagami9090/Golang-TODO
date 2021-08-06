@@ -23,8 +23,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := gin.Default()
-	r.GET("/auth", func(c *gin.Context) {
+	r := app.New()
+	r.GET("/auth", func(c *app.Ctx) {
 		mySigningKey := []byte("password")
 		claims := &jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(2 * time.Minute).Unix(),
@@ -49,11 +49,9 @@ func main() {
 	todoSrv := todo.NewService(repository.NewGormRepository(db))
 	todoApp := todo.New(todoSrv)
 
-	app := app.New(r)
-
-	app.PUT("/todos", todoApp.Add)
-	app.PUT("/todos/:id", todoApp.MarkDone)
-	app.GET("/todos", todoApp.ListTask)
+	r.PUT("/todos", todoApp.Add)
+	r.PUT("/todos/:id", todoApp.MarkDone)
+	r.GET("/todos", todoApp.ListTask)
 
 	r.Run(":9090") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
