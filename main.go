@@ -16,10 +16,11 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"todo/app"
+	"todo/entities"
 	"todo/repository"
 	"todo/todo"
 )
@@ -39,10 +40,13 @@ func init() {
 }
 
 func main() {
-	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	dsn := "root:pass@tcp(172.18.0.1:8888)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	db.AutoMigrate(&entities.Task{})
 
 	logger, _ := zap.Config{
 		Encoding:    "json",
