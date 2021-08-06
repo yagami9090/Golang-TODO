@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Type", "application/msgpack")
 
 	res, err := client.Do(req)
 	if err != nil {

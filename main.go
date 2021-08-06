@@ -11,6 +11,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 
+	"todo/serialize"
 	"todo/todo"
 )
 
@@ -39,13 +40,13 @@ func main() {
 	api := r.NewRoute().Subrouter()
 	api.Use(authMiddleware)
 
-	todoApp := todo.NewApp(todo.NewJSONSerializer())
+	todoApp := todo.NewApp(serialize.NewMsgPkgSerializer())
 
 	r.HandleFunc("/todos", todoApp.AddTask).Methods(http.MethodPut)
 
 	api.HandleFunc("/todos/{index}", todo.MarkDone).Methods(http.MethodPut)
 
-	api.HandleFunc("/todos", todo.ListTask).Methods(http.MethodGet)
+	r.HandleFunc("/todos", todo.ListTask).Methods(http.MethodGet)
 
 	http.ListenAndServe(":9090", r)
 }

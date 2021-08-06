@@ -2,6 +2,7 @@ package todo
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -22,41 +23,26 @@ type NewTaskTodo struct {
 }
 
 type Serializer interface {
-	Decode(io.Reader, interface{}) error
-	Encode(io.Writer, interface{}) error
-}
-
-type JSONSerializer struct{}
-
-func (j JSONSerializer) Decode(r io.Reader, v interface{}) error {
-	return json.NewDecoder(r).Decode(v)
-}
-func (j JSONSerializer) Encode(w io.Writer, v interface{}) error {
-	return json.NewEncoder(w).Encode(v)
-}
-
-func NewJSONSerializer() JSONSerializer {
-	return JSONSerializer{}
+	Decode(io.ReadCloser, interface{}) error
 }
 
 type App struct {
 	serialize Serializer
 }
 
-func NewApp(serialize Serializer) *App {
-	return &App{
-		serialize: serialize,
-	}
+func NewApp(serialize Serializer) App {
+	return App{serialize: serialize}
 }
 
-func (app *App) AddTask(rw http.ResponseWriter, r *http.Request) {
+func (app App) AddTask(rw http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var task NewTaskTodo
 	if err := app.serialize.Decode(r.Body, &task); err != nil {
-		// if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println(task)
 
 	New(task.Task)
 }
@@ -83,6 +69,10 @@ func MarkDone(rw http.ResponseWriter, r *http.Request) {
 
 	tasks[i].Done = true
 
+}
+
+type Encoder interface {
+	Encode(io.Writer, interface{}) error
 }
 
 func ListTask(rw http.ResponseWriter, r *http.Request) {
