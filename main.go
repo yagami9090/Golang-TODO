@@ -45,7 +45,6 @@ func main() {
 	api.Use(authMiddleware)
 
 	todoApp := todo.New(repository.NewGormRepository(db))
-
 	api.PUT("/todos", todoApp.Add)
 	api.PUT("/todos/:id", todoApp.MarkDone)
 	api.GET("/todos", todoApp.ListTask)
