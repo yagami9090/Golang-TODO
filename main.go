@@ -52,8 +52,8 @@ func main() {
 	app := app.New(r)
 
 	app.PUT("/todos", todoApp.Add)
-	api.PUT("/todos/:id", todoApp.MarkDone)
-	api.GET("/todos", todoApp.ListTask)
+	app.PUT("/todos/:id", todoApp.MarkDone)
+	app.GET("/todos", todoApp.ListTask)
 
 	r.Run(":9090") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

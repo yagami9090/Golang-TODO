@@ -19,6 +19,11 @@ func (app *App) PUT(relativePath string, handler HandlerFunc) {
 		handler(&Context{Context: c})
 	})
 }
+func (app *App) GET(relativePath string, handler HandlerFunc) {
+	app.Engine.GET(relativePath, func(c *gin.Context) {
+		handler(&Context{Context: c})
+	})
+}
 
 type HandlerFunc func(*Context)
 

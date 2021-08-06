@@ -40,7 +40,7 @@ func (todo Todo) Add(c *app.Context) {
 	})
 }
 
-func (todo Todo) MarkDone(c *gin.Context) {
+func (todo Todo) MarkDone(c *app.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -49,21 +49,19 @@ func (todo Todo) MarkDone(c *gin.Context) {
 	}
 
 	if err := todo.srv.Done(uint(id)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.InternalError(err)
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})
 }
 
-func (todo Todo) ListTask(c *gin.Context) {
+func (todo Todo) ListTask(c *app.Context) {
 	list, err := todo.srv.List()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.InternalError(err)
+		return
 	}
 	c.JSON(http.StatusOK, list)
 }
