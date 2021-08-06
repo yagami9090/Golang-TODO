@@ -10,6 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 
 	"todo/repository"
 	"todo/todo"
@@ -44,7 +45,8 @@ func main() {
 	api := r.Group("/")
 	api.Use(authMiddleware)
 
-	todoApp := todo.New(repository.NewGormRepository(db))
+	todoSrv := todo.NewService(repository.NewGormRepository(db))
+	todoApp := todo.New(todoSrv)
 	api.PUT("/todos", todoApp.Add)
 	api.PUT("/todos/:id", todoApp.MarkDone)
 	api.GET("/todos", todoApp.ListTask)

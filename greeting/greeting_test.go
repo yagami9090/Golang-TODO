@@ -4,6 +4,7 @@ import "testing"
 
 // TDD: Test Driven Development
 func TestGreetingYourName(t *testing.T) {
+	t.Skip()
 	// AAA Pattern
 
 	// Arrange
@@ -20,6 +21,7 @@ func TestGreetingYourName(t *testing.T) {
 }
 
 func TestGreetingMyFriend(t *testing.T) {
+	t.Skip()
 	// AAA Pattern
 
 	// Arrange
@@ -36,6 +38,7 @@ func TestGreetingMyFriend(t *testing.T) {
 }
 
 func TestGreetingCaptital(t *testing.T) {
+	t.Skip()
 	// AAA Pattern
 
 	// Arrange
