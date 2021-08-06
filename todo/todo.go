@@ -3,6 +3,7 @@ package todo
 import (
 	"net/http"
 	"strconv"
+	"todo/app"
 	"todo/entities"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,7 @@ func New(srv Service) Todo {
 	return Todo{srv: srv}
 }
 
-func (todo Todo) Add(c *gin.Context) {
+func (todo Todo) Add(c *app.Context) {
 	var task NewTaskTodo
 	if err := c.Bind(&task); err != nil {
 		c.JSON(http.StatusBadRequest, nil)
@@ -30,9 +31,8 @@ func (todo Todo) Add(c *gin.Context) {
 	}
 
 	if err := todo.srv.Add(entities.Task{Title: task.Topic}); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.InternalError(err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

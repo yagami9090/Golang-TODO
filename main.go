@@ -12,6 +12,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	"todo/app"
 	"todo/repository"
 	"todo/todo"
 )
@@ -47,7 +48,10 @@ func main() {
 
 	todoSrv := todo.NewService(repository.NewGormRepository(db))
 	todoApp := todo.New(todoSrv)
-	api.PUT("/todos", todoApp.Add)
+
+	app := app.New(r)
+
+	app.PUT("/todos", todoApp.Add)
 	api.PUT("/todos/:id", todoApp.MarkDone)
 	api.GET("/todos", todoApp.ListTask)
 
