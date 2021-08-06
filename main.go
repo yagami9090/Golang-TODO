@@ -2,17 +2,25 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
 
+	"todo/repository"
 	"todo/todo"
 )
 
 func main() {
+	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := gin.Default()
 	r.GET("/auth", func(c *gin.Context) {
 		mySigningKey := []byte("password")
@@ -36,9 +44,11 @@ func main() {
 	api := r.Group("/")
 	api.Use(authMiddleware)
 
-	api.PUT("/todos", todo.AddTask)
-	api.PUT("/todos/:id", todo.MarkDone)
-	api.GET("/todos", todo.ListTask)
+	todoApp := todo.New(repository.NewGormRepository(db))
+
+	api.PUT("/todos", todoApp.Add)
+	api.PUT("/todos/:id", todoApp.MarkDone)
+	api.GET("/todos", todoApp.ListTask)
 
 	r.Run(":9090") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
