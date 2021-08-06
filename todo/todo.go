@@ -4,20 +4,47 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"todo/entities"
 
 	"github.com/gin-gonic/gin"
 )
 
 var index int
-var tasks map[int]*Task = make(map[int]*Task)
-
-type Task struct {
-	Title string
-	Done  bool
-}
+var tasks map[int]*entities.Task = make(map[int]*entities.Task)
 
 type NewTaskTodo struct {
-	Task string `json:"task"`
+	Topic string `json:"task" xml:"Task" msgpack:"task" yaml:"task"`
+}
+
+type Inserter interface {
+	Insert(interface{}) error
+}
+
+type Repository interface {
+	NewTask(*entities.Task) error
+}
+
+type Todo struct {
+	// db   Inserter
+	repo Repository
+}
+
+func (todo Todo) Add(c *gin.Context) {
+	var task NewTaskTodo
+	if err := c.Bind(&task); err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return
+	}
+
+	if err := todo.repo.NewTask(&task).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
 }
 
 func AddTask(c *gin.Context) {
@@ -46,7 +73,7 @@ func ListTask(c *gin.Context) {
 	c.JSON(http.StatusOK, List())
 }
 
-func List() map[int]*Task {
+func List() map[int]*entities.Task {
 	return tasks
 }
 
@@ -55,7 +82,7 @@ func New(task string) {
 		index++
 	}()
 
-	tasks[index] = &Task{
+	tasks[index] = &entities.Task{
 		Title: task,
 		Done:  false,
 	}
